@@ -24,7 +24,7 @@ class Product(models.Model):
 class DiscountCode(models.Model):
     code = models.CharField(max_length=20, unique=True)
     discount = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(1)])
-    free_delibery = models.BooleanField(default=False)
+    free_delivery = models.BooleanField(default=False)
     combines_with_others = models.BooleanField(default=True)
     active_from = models.DateTimeField(auto_now=False, auto_now_add=False)
     active_to = models.DateTimeField(auto_now=False, auto_now_add=False)
