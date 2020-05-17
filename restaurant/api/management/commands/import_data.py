@@ -1,9 +1,12 @@
+import copy
 import logging
 from typing import List, Dict
 
 from bs4 import BeautifulSoup
 from django.core.management import BaseCommand
 from requests_html import HTMLSession
+
+from api.serializers import CategorySerializer
 
 
 class Command(BaseCommand):
@@ -54,7 +57,42 @@ class Command(BaseCommand):
         sections = sections_list.find_all('li', class_='restaurant-menu-section')
         return sections
 
+    def prepare_to_save(self, data):
+        results = []
+
+        for item in data:
+            category = item.get('category')
+            products = item.get('products')
+
+            if category == 'Pizza':
+                tmp = []
+                for product in products:
+                    product_big_size = copy.deepcopy(product)
+                    product_big_size.update({
+                        "name": f"{product_big_size.get('name')} (42 cm)"
+                    })
+
+                    product_small_size = copy.deepcopy(product)
+                    product_small_size.update({
+                        "name": f"{product_small_size.get('name')} (32 cm)",
+                        "price": float(product_small_size.get('price')) - 10.50
+                    })
+
+                    tmp.append(product_big_size)
+                    tmp.append(product_small_size)
+                products = tmp
+            results.append({
+                "name": category,
+                "products": products
+            })
+
+        return results
+
     def handle(self, *args, **options):
         sections = self.get_sections_list()
-        result = self.parse_sections(sections)
-        print(result)
+        results = self.parse_sections(sections)
+        data = self.prepare_to_save(results)
+        serializer = CategorySerializer(data=data, many=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        self.logger.debug("Products imported")
