@@ -33,7 +33,10 @@ prune:
 	docker-compose down -v --remove-orphans --rmi local
 
 dumpdata:
-	docker-compose run --rm cli python manage.py dumpdata > fixtures/initial_data.json
+	docker-compose run --rm cli python manage.py dumpdata --exclude=contenttypes --exclude=auth.Permission --format=json > restaurant/fixtures/initial_data.json
 
 loaddata:
 	docker-compose run --rm cli python manage.py loaddata fixtures/initial_data.json
+
+reset_db:
+	docker-compose run --rm cli python manage.py flush --no-input
