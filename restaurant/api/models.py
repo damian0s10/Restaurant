@@ -14,11 +14,20 @@ class Category(models.Model):
 
 
 class Product(models.Model):
+    SMALL_SIZE = 1
+    BIG_SIZE = 2
+
+    SIZE_CHOICES = (
+        (SMALL_SIZE, 'small size'),
+        (BIG_SIZE, 'big size'),
+    )
+
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=500)
     price = models.DecimalField(max_digits=5, decimal_places=2)
-    category = models.ForeignKey(Category, related_name = 'products', on_delete=models.CASCADE)
-    
+    category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE)
+    size = models.PositiveSmallIntegerField(choices=SIZE_CHOICES, default=BIG_SIZE)
+
     class Meta:
         ordering = ['name']
 
