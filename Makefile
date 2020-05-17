@@ -31,3 +31,9 @@ makemigrations:
 
 prune:
 	docker-compose down -v --remove-orphans --rmi local
+
+dumpdata:
+	docker-compose run --rm cli python manage.py dumpdata > fixtures/initial_data.json
+
+loaddata:
+	docker-compose run --rm cli python manage.py loaddata fixtures/initial_data.json
