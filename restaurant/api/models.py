@@ -1,5 +1,6 @@
-from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+
 
 # Create your models here.
 class Category(models.Model):
@@ -20,7 +21,8 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-    
+
+
 class DiscountCode(models.Model):
     code = models.CharField(max_length=20, unique=True)
     discount = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(1)])
@@ -31,6 +33,7 @@ class DiscountCode(models.Model):
 
     def __str__(self):
         return self.code
+
 
 class Order(models.Model):
     first_name = models.CharField(max_length=50)
@@ -46,7 +49,7 @@ class Order(models.Model):
     def get_products(self):
         return "\n".join([p.name for p in self.products.all()])
 
+
 class OrderSummary(Order):
     total_price = models.DecimalField(max_digits=5, decimal_places=2)
     price_after_reduction = models.DecimalField(max_digits=5, decimal_places=2)
-
