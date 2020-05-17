@@ -8,11 +8,11 @@ services:
     ports:
     - 8000:8000
     volumes:
-    - ./restaurant:/app
+    - ./:/app
   cli:
     build:
       context: .
       dockerfile: Dockerfile
     command: echo "Starting cli..."
     volumes:
-    - ./restaurant:/app
+    - ./:/app

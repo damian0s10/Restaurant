@@ -1,6 +1,6 @@
 FROM python:3.6-buster
 
-WORKDIR /app
+WORKDIR /app/restaurant
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
@@ -13,7 +13,7 @@ COPY Pipfile* /tmp/
 RUN cd /tmp && pipenv lock --requirements > /tmp/requirements.txt
 RUN pip install --upgrade -r /tmp/requirements.txt
 
-COPY ./restaurant /app/
+COPY ./ /app/
 
 CMD python manage.py runserver 0.0.0.0:8000
 

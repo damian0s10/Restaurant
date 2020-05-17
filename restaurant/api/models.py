@@ -23,7 +23,7 @@ class Product(models.Model):
     )
 
     name = models.CharField(max_length=100)
-    description = models.CharField(max_length=500)
+    description = models.CharField(max_length=500, null=True, blank=True)
     price = models.DecimalField(max_digits=5, decimal_places=2)
     category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE)
     size = models.PositiveSmallIntegerField(choices=SIZE_CHOICES, default=BIG_SIZE)
