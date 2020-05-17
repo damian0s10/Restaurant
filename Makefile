@@ -6,10 +6,8 @@ default: run
 run:
 	docker-compose up -d
 
-build:
+build: prune
 	docker-compose build
-
-rebuild: prune build
 
 stop:
 	docker-compose down
@@ -20,16 +18,16 @@ logs:
 run-with-logs: run logs
 
 cli:
-	docker-compose run --rm web bash
+	docker-compose run --rm cli bash
 
 shell:
-	docker-compose run --rm web python manage.py shell
+	docker-compose run --rm cli python manage.py shell
 
 migrate:
-	docker-compose run --rm web python manage.py migrate
+	docker-compose run --rm cli python manage.py migrate
 
 makemigrations:
-	docker-compose run --rm web python manage.py makemigrations
+	docker-compose run --rm cli python manage.py makemigrations
 
 prune:
-	docker-compose down -v --rmi local --remove-orphans
+	docker-compose down -v --remove-orphans --rmi local
