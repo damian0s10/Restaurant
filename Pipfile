@@ -6,9 +6,11 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-django = "*"
+Django = "*"
 djangorestframework = "*"
 django-cors-headers = "*"
+beautifulsoup4 = "*"
+requests-html = "*"
 
 [requires]
 python_version = "3.6"
