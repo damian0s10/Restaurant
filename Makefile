@@ -1,6 +1,3 @@
-
-APP_NAME ?= restaurant-api
-
 default: run
 
 run:

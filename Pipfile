@@ -11,6 +11,7 @@ djangorestframework = "*"
 django-cors-headers = "*"
 beautifulsoup4 = "*"
 requests-html = "*"
+experta = "*"
 
 [requires]
 python_version = "3.6"
