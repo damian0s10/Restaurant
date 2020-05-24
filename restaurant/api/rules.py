@@ -30,6 +30,8 @@ class ProductDiscount(KnowledgeEngine):
     DISCOUNT_SALAD_20_PERCENT = 'znizka.saladka_20_procent_taniej'
     DISCOUNT_PIZZA_15_PERCENT = 'znizka.pizza_duza_15_procent_taniej'
     DISCOUNT_BURGER_15_PERCET = 'znizka.burger_15_procent_taniej'
+    DISCOUNT_FREE_COFFEA = 'znizka.darmowa_kawa'
+    DISCOUNT_ALKOHOL_20_PERCENT = 'znizka.alkohol_20_procent_taniej'
 
     def __init__(self, product_list):
         super(ProductDiscount, self).__init__()
@@ -115,7 +117,7 @@ class ProductDiscount(KnowledgeEngine):
 
     @Rule(Recipe(price=MATCH.price, category='burgery'),
           TEST(lambda _: datetime.datetime.today().weekday() == 2))
-    def discount_burger(self,price):
+    def discount_burger(self, price):
         """
         Środa zniżka na burgery -15%
         :param price:
@@ -124,8 +126,30 @@ class ProductDiscount(KnowledgeEngine):
         self.declare(Product(name='Sroda znizka na burgery 15%', price=-(price * 0.15),
                              category=ProductDiscount.DISCOUNT_BURGER_15_PERCET))
 
+    @Rule(Recipe(price=MATCH.price, category='sniadanie'),
+          TEST(lambda _: datetime.datetime.today().weekday() == 2),
+          TEST(lambda _: datetime.datetime.today().hour < 13))
+    def free_coffea(self):
+        """
+        Środa darmowa kawa przy zamówieniu oferty śniadaniowej, do godziny 13
+        :return:
+        """
+        self.declare(Product(name='Środa darmowa kawa przy zamówieniu oferty śniadaniowej', price=0.0,
+                             category=ProductDiscount.DISCOUNT_FREE_COFFEA))
+
+    @Rule(Recipe(price=MATCH.price, category='alkohol'),
+          TEST(lambda _: datetime.datetime.today().weekday() == 6),
+          TEST(lambda _: datetime.datetime.today().hour >= 12))
+    def discount_alkohol(self, price):
+        """
+        Czwartek od godz. 20 alkohol - 20%
+        :param price:
+        :return:
+        """
+        self.declare(Product(name='Czwartek zniżka na alkohol 20%', price=-(price * 0.2),
+                             category=ProductDiscount.DISCOUNT_ALKOHOL_20_PERCENT))
+
 # TODO 1. Kody rabatowe ( np. x% znizki na zamowienie, darmowa dostawa, sprawdzenie czy łącza się z innymi promocjami)
-# TODO 3. Czwartek od godz 20 alkohol -20%.
 # TODO 4. Piątek makarony -15%.
 # TODO 5. Piątek w godz 16-20, 3 piwa w cenie 2.
 # TODO 6. Sobota i niedziela desery -10%.
@@ -145,6 +169,11 @@ if __name__ == '__main__':
         {'name': 'Salatka 1', 'price': 15.0, 'category': 'salatka', 'size': 2},
         {'name': 'Salatka 1', 'price': 15.0, 'category': 'salatka', 'size': 2},
         {'name': 'Burger 1', 'price': 19.0, 'category': 'burgery', 'size': 2},
+        {'name': 'Jajecznica', 'price': 12.0, 'category': 'sniadanie', 'size': 2},
+        {'name': 'Nalesniki', 'price': 13.0, 'category': 'sniadanie', 'size': 2},
+        {'name': 'Piwo', 'price': 6.50, 'category': 'alkohol', 'size': 2},
+        {'name': 'Piwo2', 'price': 6.50, 'category': 'alkohol', 'size': 2},
+        {'name': 'Piwo3', 'price': 6.50, 'category': 'alkohol', 'size': 2},
     ]
 
     product_discount = ProductDiscount(products)
