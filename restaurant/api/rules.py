@@ -32,6 +32,10 @@ class ProductDiscount(KnowledgeEngine):
     DISCOUNT_BURGER_15_PERCET = 'znizka.burger_15_procent_taniej'
     DISCOUNT_FREE_COFFEA = 'znizka.darmowa_kawa'
     DISCOUNT_ALKOHOL_20_PERCENT = 'znizka.alkohol_20_procent_taniej'
+    DISCOUNT_FREE_SAUCE = 'znizka.sos_gratis'
+    DISCOUNT_DESSERT_10_PERCENT = 'znizka.deser_10_procent_taniej'
+    PACKAGE_SMALL_PIZZA = 'opakowanie.mala_pizza'
+    PACKAGE_BIG_PIZZA = 'opakowanie.duza_pizza'
 
     def __init__(self, product_list):
         super(ProductDiscount, self).__init__()
@@ -138,8 +142,8 @@ class ProductDiscount(KnowledgeEngine):
                              category=ProductDiscount.DISCOUNT_FREE_COFFEA))
 
     @Rule(Recipe(price=MATCH.price, category='alkohol'),
-          TEST(lambda _: datetime.datetime.today().weekday() == 6),
-          TEST(lambda _: datetime.datetime.today().hour >= 12))
+          TEST(lambda _: datetime.datetime.today().weekday() == 3),
+          TEST(lambda _: datetime.datetime.today().hour >= 20))
     def discount_alkohol(self, price):
         """
         Czwartek od godz. 20 alkohol - 20%
@@ -149,12 +153,43 @@ class ProductDiscount(KnowledgeEngine):
         self.declare(Product(name='Czwartek zniżka na alkohol 20%', price=-(price * 0.2),
                              category=ProductDiscount.DISCOUNT_ALKOHOL_20_PERCENT))
 
+    @Rule(Recipe(category='pizza', size=MATCH.size))
+    def add_package(self, size):
+        """
+        Dodanie opakowanie do każdej pizzy
+        """
+        if size == 1:
+            self.declare(Product(name='Małe opakowanie do pizza', price=1.0,
+                             category=ProductDiscount.PACKAGE_SMALL_PIZZA))
+        else:
+            self.declare(Product(name='Duże opakowanie do pizza', price=1.5,
+                             category=ProductDiscount.PACKAGE_BIG_PIZZA))
+
+    @Rule(Recipe(category='pizza'),
+          TEST(lambda _: datetime.datetime.today().weekday() > 0),
+          TEST(lambda _: datetime.datetime.today().weekday() <= 3))
+    def free_sauce(self):
+        """
+        Sos gratis do każdej pizzy (od poniedziałku do czwartku)
+        """
+        self.declare(Product(name='Sos gratis', price=0.0,
+                             category=ProductDiscount.DISCOUNT_FREE_SAUCE))
+
+    @Rule(Recipe(price=MATCH.price, category='desery'),
+          TEST(lambda _: datetime.datetime.today().weekday() == 6))
+    def discount_desserts(self, price):
+        """
+        Niedziela znizka na desery 10%
+        """
+        self.declare(Product(name='Niedziela zniżka na desery 10%', price=-(price * 0.1),
+                             category=ProductDiscount.DISCOUNT_DESSERT_10_PERCENT))
+
+    
+                             
 # TODO 1. Kody rabatowe ( np. x% znizki na zamowienie, darmowa dostawa, sprawdzenie czy łącza się z innymi promocjami)
-# TODO 4. Piątek makarony -15%.
 # TODO 5. Piątek w godz 16-20, 3 piwa w cenie 2.
-# TODO 6. Sobota i niedziela desery -10%.
 # TODO 7. Niedziela w zestawie dowolne danie i napojem, -15% na zestaw
-# TODO 8. Od poniedziału do czwartku do każdej pizzy 2 sosy gratis.
+
 
 
 if __name__ == '__main__':
@@ -174,6 +209,8 @@ if __name__ == '__main__':
         {'name': 'Piwo', 'price': 6.50, 'category': 'alkohol', 'size': 2},
         {'name': 'Piwo2', 'price': 6.50, 'category': 'alkohol', 'size': 2},
         {'name': 'Piwo3', 'price': 6.50, 'category': 'alkohol', 'size': 2},
+        {'name': 'Lody', 'price': 9.00, 'category': 'desery', 'size': 2}
+
     ]
 
     product_discount = ProductDiscount(products)
