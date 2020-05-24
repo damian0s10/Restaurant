@@ -29,6 +29,7 @@ class ProductDiscount(KnowledgeEngine):
     DISCOUNT_FREE_COLA = 'znizka.darmowa_cola'
     DISCOUNT_SALAD_20_PERCENT = 'znizka.saladka_20_procent_taniej'
     DISCOUNT_PIZZA_15_PERCENT = 'znizka.pizza_duza_15_procent_taniej'
+    DISCOUNT_BURGER_15_PERCET = 'znizka.burger_15_procent_taniej'
 
     def __init__(self, product_list):
         super(ProductDiscount, self).__init__()
@@ -112,9 +113,18 @@ class ProductDiscount(KnowledgeEngine):
         self.declare(Product(name='Sobota znizka na duza pizze 15%', price=-(price * 0.2),
                              category=ProductDiscount.DISCOUNT_PIZZA_15_PERCENT))
 
+    @Rule(Recipe(price=MATCH.price, category='burgery'),
+          TEST(lambda _: datetime.datetime.today().weekday() == 2))
+    def discount_burger(self,price):
+        """
+        Środa zniżka na burgery -15%
+        :param price:
+        :return:
+        """
+        self.declare(Product(name='Sroda znizka na burgery 15%', price=-(price * 0.15),
+                             category=ProductDiscount.DISCOUNT_BURGER_15_PERCET))
 
 # TODO 1. Kody rabatowe ( np. x% znizki na zamowienie, darmowa dostawa, sprawdzenie czy łącza się z innymi promocjami)
-# TODO 2. Środa do zamowienia z oferty sniadaniowej do godziny 12, kawa gratis.
 # TODO 3. Czwartek od godz 20 alkohol -20%.
 # TODO 4. Piątek makarony -15%.
 # TODO 5. Piątek w godz 16-20, 3 piwa w cenie 2.
@@ -133,6 +143,8 @@ if __name__ == '__main__':
         {'name': 'duza pizza5', 'price': 12.5, 'category': 'pizza', 'size': 2},
         {'name': 'duza pizza6', 'price': 12.5, 'category': 'pizza', 'size': 2},
         {'name': 'Salatka 1', 'price': 15.0, 'category': 'salatka', 'size': 2},
+        {'name': 'Salatka 1', 'price': 15.0, 'category': 'salatka', 'size': 2},
+        {'name': 'Burger 1', 'price': 19.0, 'category': 'burgery', 'size': 2},
     ]
 
     product_discount = ProductDiscount(products)
