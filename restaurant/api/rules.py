@@ -124,6 +124,7 @@ class ProductDiscount(KnowledgeEngine):
 
 
 if __name__ == '__main__':
+    # TODO dummy data, can be removed later
     products = [
         {'name': 'duza pizza', 'price': 12.5, 'category': 'pizza', 'size': 2},
         {'name': 'duza pizza2', 'price': 32.5, 'category': 'pizza', 'size': 2},
