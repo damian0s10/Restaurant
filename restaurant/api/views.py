@@ -35,7 +35,8 @@ class OrderFoodAPIView(APIView):
         return data
 
     def post(self, *args, **kwargs):
-        products = OrderSerializer(self.request.data, many=True).data
+        products = list(sorted(self.request.data, key=lambda product: product['price']))
+        products = OrderSerializer(products, many=True).data
 
         product_discount = ProductDiscount(products)
         product_discount.reset()
