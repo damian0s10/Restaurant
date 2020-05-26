@@ -71,7 +71,7 @@ const Dashboard = () => {
   };
 
   const orderFood = () => {
-    const products = Object.values(basket).map(item => item.product)
+    const products = Object.values(basket).map(item => ({...item.product, count: item.count}))
     postOrder(products)
       .then(response => setResult(response.data))
       .catch(error => console.error(error));

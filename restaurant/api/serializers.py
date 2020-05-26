@@ -37,6 +37,7 @@ class OrderSerializer(serializers.Serializer):
     price = serializers.FloatField()
     category = serializers.CharField()
     size = serializers.IntegerField()
+    count = serializers.IntegerField()
 
     def update(self, instance, validated_data):
         pass
