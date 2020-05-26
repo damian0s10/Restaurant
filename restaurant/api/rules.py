@@ -9,18 +9,15 @@ class Recipe(Fact):
     category = Field(str, mandatory=True)
     size = Field(int, default=2)
     count = Field(int, default=1)
+    idx = Field(int, default=1)
 
 
 class TotalPrice(Fact):
     total_price = Field(float, default=0.0)
 
 
-class Product(Fact):
-    name = Field(str, mandatory=True)
-    price = Field(float, mandatory=True)
-    category = Field(str, mandatory=True)
-    size = Field(int, default=2)
-    count = Field(int, default=1)
+class Product(Recipe):
+    pass
 
 
 class ProductDiscount(KnowledgeEngine):
@@ -43,6 +40,7 @@ class ProductDiscount(KnowledgeEngine):
     def __init__(self, product_list):
         super(ProductDiscount, self).__init__()
         self.product_list = product_list
+        self.idx = 1
 
     @DefFacts()
     def startup(self):
@@ -60,12 +58,14 @@ class ProductDiscount(KnowledgeEngine):
           AS.sum_price << TotalPrice(total_price=MATCH.total_price))
     def add_to_recipe(self, product, name, price, category, size, count, sum_price, total_price):
         self.retract(product)
-        self.declare(Recipe(name=name, price=price, category=category, size=size ,count=count))
-        self.modify(sum_price, total_price=total_price + price)
+        self.declare(Recipe(name=name, price=price, category=category, size=size, count=count, idx=self.idx))
+        self.modify(sum_price, total_price=total_price + (price * count))
+        self.idx += 1
 
     @Rule(NOT(Recipe(category=DISCOUNT_TWO_PIZZAS_ONE_PRICE)),
-          Recipe(price=MATCH.price1, category='pizza', size=2),
-          Recipe(price=MATCH.price2, category='pizza', size=2))
+          Recipe(price=MATCH.price1, category='pizza', size=2, idx=MATCH.idx1),
+          Recipe(price=MATCH.price2, category='pizza', size=2, idx=MATCH.idx2),
+          TEST(lambda idx1, idx2: idx1 != idx2))
     def two_big_pizzas_one_price(self, price1, price2):
         """
         2 duże pizze w cenie 1 (tej droższej)
@@ -189,7 +189,6 @@ class ProductDiscount(KnowledgeEngine):
         self.declare(Product(name='Niedziela zniżka na desery 10%', price=-(price * 0.1),
                              category=ProductDiscount.DISCOUNT_DESSERT_10_PERCENT))
 
-    
     @Rule(NOT(Recipe(category=DISCOUNT_BEER_ONE_FREE)),
           Recipe(name=MATCH.name, category='alkohol', count=MATCH.count),
           TEST(lambda _: datetime.datetime.today().weekday() == 4 and 16 <= datetime.datetime.today().hour < 20))
@@ -203,7 +202,6 @@ class ProductDiscount(KnowledgeEngine):
         for _ in range(count//2):
             self.declare(Product(name='Piątek w godz. 16-20 darmowe piwo ' + name, price=0.0,
                                  category=ProductDiscount.DISCOUNT_BEER_ONE_FREE))
-
 
     @Rule(Recipe(category='burgery', price=MATCH.price1),
           Recipe(category='napoje', price=MATCH.price2),
@@ -219,8 +217,6 @@ class ProductDiscount(KnowledgeEngine):
                                  category=ProductDiscount.DISCOUNT_BURGER_AND_DRING_15_PERCENT))
 
 # TODO 1. Kody rabatowe ( np. x% znizki na zamowienie, darmowa dostawa, sprawdzenie czy łącza się z innymi promocjami)
-
-
 
 
 if __name__ == '__main__':
@@ -243,8 +239,6 @@ if __name__ == '__main__':
         {'name': 'Lody', 'price': 9.00, 'category': 'desery', 'size': 2, 'count': 1},
         {'name': 'Piwo4', 'price': 6.70, 'category': 'alkohol', 'size': 2, 'count': 5},
         {'name': 'Sok', 'price': 4.00, 'category': 'napoje', 'size': 2, 'count': 1},
-        
-
     ]
 
     product_discount = ProductDiscount(products)
