@@ -83,9 +83,9 @@ const Dashboard = () => {
         <ul style={{margin: 40}}>
           {result.map((item, index) => <li key={index} style={{marginBottom: 10}}>
             {!!item.total_price &&
-            [<span style={{fontWeight: 'bold'}}>Cena całkowita </span>, item.total_price]}
-            {!!item.price &&
-            [<span style={{fontWeight: 'bold'}}>{item.name} </span>, item.price]} zł
+            [<span style={{fontWeight: 'bold'}}>Cena całkowita </span>, Number(item.total_price).toFixed(2) + 'zł']}
+            {item.name && <span style={{fontWeight: 'bold'}}>{item.name} x{item.count} </span>}
+            {!!item.price && `${Number(item.price).toFixed(2)}zł`}
           </li>)}
         </ul>
       );
