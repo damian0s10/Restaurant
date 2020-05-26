@@ -100,7 +100,7 @@ const Dashboard = () => {
           <h1 style={{margin: 10, textAlign: 'center'}}>Koszyk</h1>
           <ul>
             {Object.values(basket).map(item => <li key={item.product.id} style={{marginBottom: 10}}>
-              {item.product.name}
+              {item.product.name} x{item.count}
             </li>)}
           </ul>
           {!!Object.keys(basket).length && <button type='button' onClick={orderFood}>Zamów</button>}
