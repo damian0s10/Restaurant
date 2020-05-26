@@ -99,6 +99,7 @@ const Dashboard = () => {
         <aside style={{marginLeft: '15px', marginRight: '15px', maxWidth: 300, width: '100%'}}>
           <h1 style={{margin: 10, textAlign: 'center'}}>Koszyk</h1>
           <ul>
+            {Object.keys(basket).length === 0 && <li key='empty-basket' style={{marginBottom: 10}}>Koszyk jest pusty</li>}
             {Object.values(basket).map(item => <li key={item.product.id} style={{marginBottom: 10}}>
               {item.product.name} x{item.count}
             </li>)}
