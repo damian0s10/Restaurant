@@ -45,23 +45,3 @@ class DiscountCode(models.Model):
 
     def __str__(self):
         return self.code
-
-
-class Order(models.Model):
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
-    phone_number = models.CharField(max_length=9)
-    email = models.EmailField(max_length=254)
-    city = models.CharField(max_length=100)
-    street = models.CharField(max_length=100)
-    house_number = models.CharField(max_length=10)
-    products = models.ManyToManyField(Product, related_name='order')
-    discount_code = models.ForeignKey(DiscountCode, models.SET_NULL, blank=True, null=True, to_field='code')
-
-    def get_products(self):
-        return "\n".join([p.name for p in self.products.all()])
-
-
-class OrderSummary(Order):
-    total_price = models.DecimalField(max_digits=5, decimal_places=2)
-    price_after_reduction = models.DecimalField(max_digits=5, decimal_places=2)

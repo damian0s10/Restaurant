@@ -20,3 +20,11 @@ make dumpdata
 ```makefile
 make loaddata
 ```
+### Install frontend dependencies
+```makefile
+make frontend-install
+```
+### Run frontend in development mode
+```makefile
+make frontend-run
+```

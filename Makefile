@@ -1,12 +1,11 @@
-
-APP_NAME ?= restaurant-api
-
 default: run
 
 run:
 	docker-compose up -d
 
-build: prune
+build: prune build-docker frontend-install
+
+build-docker:
 	docker-compose build
 
 stop:
@@ -40,3 +39,9 @@ loaddata:
 
 reset_db:
 	docker-compose run --rm cli python manage.py flush --no-input
+
+frontend-install:
+	cd frontend && yarn && cd ..
+
+frontend-run:
+	cd frontend && yarn start && cd ..
