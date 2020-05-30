@@ -169,7 +169,7 @@ class ProductDiscount(KnowledgeEngine):
                                 category=ProductDiscount.PACKAGE_BIG_PIZZA))
 
     @Rule(Recipe(category='pizza'),
-          TEST(lambda _: 0 < datetime.datetime.today().weekday() <= 3))
+          TEST(lambda _: 0 < datetime.datetime.today().weekday() <= 6))
     def free_sauce(self):
         """
         Sos gratis do każdej pizzy (od poniedziałku do czwartku)
@@ -216,7 +216,20 @@ class ProductDiscount(KnowledgeEngine):
         self.declare(Product(name='Niedziela zniżka na burger i napój w zestawie', price=round(-((price1+price2)*0.15),2),
                                  category=ProductDiscount.DISCOUNT_BURGER_AND_DRING_15_PERCENT))
 
-# TODO 1. Kody rabatowe ( np. x% znizki na zamowienie, darmowa dostawa, sprawdzenie czy łącza się z innymi promocjami)
+    @Rule(AS.sauce1 << Recipe(category=DISCOUNT_FREE_SAUCE, count=MATCH.count1, idx=MATCH.index1),
+          AS.sauce2 << Recipe(category=DISCOUNT_FREE_SAUCE, count=MATCH.count2, idx=MATCH.index2),
+          TEST(lambda index1, index2: index1 != index2))
+    def sum_sauces(self, sauce1, count1, sauce2, count2):
+        """
+        Redukcja liczby sosw, zwiekszenie zmiennej count
+        :param sauce1:
+        :param count1:
+        :param sauce2:
+        :param count2:
+        :return:
+        """
+        self.modify(sauce1, count=count1 + count2)
+        self.retract(sauce2)
 
 
 if __name__ == '__main__':
