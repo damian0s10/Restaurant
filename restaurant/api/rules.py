@@ -161,6 +161,7 @@ class ProductDiscount(KnowledgeEngine):
         :param size:
         :return:
         """
+        print('size', size)
         if size == 1:
             self.declare(Product(name='Małe opakowanie do pizza', price=1.0,
                                 category=ProductDiscount.PACKAGE_SMALL_PIZZA))
@@ -169,7 +170,7 @@ class ProductDiscount(KnowledgeEngine):
                                 category=ProductDiscount.PACKAGE_BIG_PIZZA))
 
     @Rule(Recipe(category='pizza'),
-          TEST(lambda _: 0 < datetime.datetime.today().weekday() <= 3))
+          TEST(lambda _: 0 < datetime.datetime.today().weekday() <= 6))
     def free_sauce(self):
         """
         Sos gratis do każdej pizzy (od poniedziałku do czwartku)
@@ -216,7 +217,54 @@ class ProductDiscount(KnowledgeEngine):
         self.declare(Product(name='Niedziela zniżka na burger i napój w zestawie', price=round(-((price1+price2)*0.15),2),
                                  category=ProductDiscount.DISCOUNT_BURGER_AND_DRING_15_PERCENT))
 
-# TODO 1. Kody rabatowe ( np. x% znizki na zamowienie, darmowa dostawa, sprawdzenie czy łącza się z innymi promocjami)
+    @Rule(AS.sauce1 << Recipe(category=DISCOUNT_FREE_SAUCE, count=MATCH.count1, idx=MATCH.index1),
+          AS.sauce2 << Recipe(category=DISCOUNT_FREE_SAUCE, count=MATCH.count2, idx=MATCH.index2),
+          TEST(lambda index1, index2: index1 != index2))
+    def sum_sauces(self, sauce1, count1, sauce2, count2):
+        """
+        Redukcja liczby sosw, zwiekszenie zmiennej count
+        :param sauce1:
+        :param count1:
+        :param sauce2:
+        :param count2:
+        :return:
+        """
+        self.modify(sauce1, count=count1 + count2)
+        self.retract(sauce2)
+
+    @Rule(AS.package1 << Recipe(category=PACKAGE_SMALL_PIZZA, count=MATCH.count1, idx=MATCH.index1, price=MATCH.price1),
+          AS.package2 << Recipe(category=PACKAGE_SMALL_PIZZA, count=MATCH.count2, idx=MATCH.index2, price=MATCH.price2),
+          TEST(lambda index1, index2: index1 != index2))
+    def sum_small_package(self, package1, count1, price1, package2, count2, price2):
+        """
+        Redukcja liczby malych opakowan, zsumowanie zmiennej count oraz price
+        :param package1:
+        :param count1:
+        :param price1:
+        :param package2:
+        :param count2:
+        :param price2:
+        :return:
+        """
+        self.modify(package1, count=count1 + count2, price=price1 + price2)
+        self.retract(package2)
+
+    @Rule(AS.package1 << Recipe(category=PACKAGE_BIG_PIZZA, count=MATCH.count1, idx=MATCH.index1, price=MATCH.price1),
+          AS.package2 << Recipe(category=PACKAGE_BIG_PIZZA, count=MATCH.count2, idx=MATCH.index2, price=MATCH.price2),
+          TEST(lambda index1, index2: index1 != index2))
+    def sum_big_package(self, package1, count1, price1, package2, count2, price2):
+        """
+        Redukcja liczby duzych opakowan, zsumowanie zmiennej count oraz price
+        :param package1:
+        :param count1:
+        :param price1:
+        :param package2:
+        :param count2:
+        :param price2:
+        :return:
+        """
+        self.modify(package1, count=count1 + count2, price=price1 + price2)
+        self.retract(package2)
 
 
 if __name__ == '__main__':
