@@ -42,6 +42,7 @@ class ProductDiscount(KnowledgeEngine):
         self.product_list = product_list
         self.idx = 1
 
+
     @DefFacts()
     def startup(self):
         yield Product(name='Koszt dostawy', price=10.0, category='dostawa')
@@ -50,9 +51,11 @@ class ProductDiscount(KnowledgeEngine):
             yield Product(name=product['name'], price=product['price'], category=product['category'],
                           size=product['size'], count=product['count'])
 
+
     @Rule()
     def default_values(self):
         self.declare(TotalPrice(total_price=0.0))
+
 
     @Rule(AS.product << Product(name=MATCH.name, price=MATCH.price, category=MATCH.category, size=MATCH.size, count=MATCH.count),
           AS.sum_price << TotalPrice(total_price=MATCH.total_price))
@@ -62,10 +65,12 @@ class ProductDiscount(KnowledgeEngine):
         self.modify(sum_price, total_price=total_price + (price * count))
         self.idx += 1
 
+
     @Rule(NOT(Recipe(category=DISCOUNT_TWO_PIZZAS_ONE_PRICE)),
           Recipe(price=MATCH.price1, category='pizza', size=2, idx=MATCH.idx1),
           Recipe(price=MATCH.price2, category='pizza', size=2, idx=MATCH.idx2),
-          TEST(lambda idx1, idx2: idx1 != idx2))
+          TEST(lambda idx1, idx2: idx1 != idx2),
+          TEST(lambda _: datetime.datetime.today().weekday() == 1))
     def two_big_pizzas_one_price(self, price1, price2):
         """
         2 duże pizze w cenie 1 (tej droższej)
@@ -77,8 +82,10 @@ class ProductDiscount(KnowledgeEngine):
         self.declare(Product(name='Promocja 2 duze pizze w cenie 1 drozszej', price=-price,
                              category=ProductDiscount.DISCOUNT_TWO_PIZZAS_ONE_PRICE))
 
+
     @Rule(NOT(Recipe(category=DISCOUNT_FREE_COLA)),
-          Recipe(category='pizza'))
+          Recipe(category='pizza'),
+          TEST(lambda _: datetime.datetime.today().weekday() == 2))
     def free_cola(self):
         """
         Cola 0.5l gratis przy zamowienie pizzy.
@@ -86,6 +93,7 @@ class ProductDiscount(KnowledgeEngine):
         """
         self.declare(Product(name='Darmowa cola 0.5l przy zamowieniu pizzy', price=0.0,
                              category=ProductDiscount.DISCOUNT_FREE_COLA))
+
 
     @Rule(NOT(Recipe(category=DISCOUNT_FREE_DELIVERY)),
           AS.sum_price << TotalPrice(total_price=MATCH.total_price),
@@ -100,6 +108,7 @@ class ProductDiscount(KnowledgeEngine):
                              category=ProductDiscount.DISCOUNT_FREE_DELIVERY))
         self.modify(sum_price)
 
+
     @Rule(Recipe(price=MATCH.price, category='salatka'),
           TEST(lambda _: datetime.datetime.today().weekday() == 1))
     def discount_salad(self, price):
@@ -110,6 +119,7 @@ class ProductDiscount(KnowledgeEngine):
         """
         self.declare(Product(name='Wtorek znizka na salatki 20%', price=-(price * 0.2),
                              category=ProductDiscount.DISCOUNT_SALAD_20_PERCENT))
+
 
     @Rule(Recipe(price=MATCH.price, category='pizza', size=2),
           TEST(lambda _: datetime.datetime.today().weekday() == 5))
@@ -122,6 +132,7 @@ class ProductDiscount(KnowledgeEngine):
         self.declare(Product(name='Sobota znizka na duza pizze 15%', price=-(price * 0.2),
                              category=ProductDiscount.DISCOUNT_PIZZA_15_PERCENT))
 
+
     @Rule(Recipe(price=MATCH.price, category='burgery'),
           TEST(lambda _: datetime.datetime.today().weekday() == 2))
     def discount_burger(self, price):
@@ -133,6 +144,7 @@ class ProductDiscount(KnowledgeEngine):
         self.declare(Product(name='Sroda znizka na burgery 15%', price=-(price * 0.15),
                              category=ProductDiscount.DISCOUNT_BURGER_15_PERCET))
 
+
     @Rule(Recipe(price=MATCH.price, category='sniadanie'),
           TEST(lambda _: datetime.datetime.today().weekday() == 2 and datetime.datetime.today().hour < 13))
     def free_coffea(self):
@@ -142,6 +154,7 @@ class ProductDiscount(KnowledgeEngine):
         """
         self.declare(Product(name='Środa darmowa kawa przy zamówieniu oferty śniadaniowej', price=0.0,
                              category=ProductDiscount.DISCOUNT_FREE_COFFEA))
+
 
     @Rule(Recipe(price=MATCH.price, category='alkohol'),
           TEST(lambda _: datetime.datetime.today().weekday() == 3 and datetime.datetime.today().hour >= 20))
@@ -153,6 +166,7 @@ class ProductDiscount(KnowledgeEngine):
         """
         self.declare(Product(name='Czwartek zniżka na alkohol 20%', price=-(price * 0.2),
                              category=ProductDiscount.DISCOUNT_ALKOHOL_20_PERCENT))
+
 
     @Rule(Recipe(category='pizza', size=MATCH.size))
     def add_package(self, size):
@@ -169,6 +183,7 @@ class ProductDiscount(KnowledgeEngine):
             self.declare(Product(name='Duże opakowanie do pizza', price=1.5,
                                 category=ProductDiscount.PACKAGE_BIG_PIZZA))
 
+
     @Rule(Recipe(category='pizza'),
           TEST(lambda _: 0 < datetime.datetime.today().weekday() <= 6))
     def free_sauce(self):
@@ -178,6 +193,7 @@ class ProductDiscount(KnowledgeEngine):
         """
         self.declare(Product(name='Sos gratis', price=0.0,
                              category=ProductDiscount.DISCOUNT_FREE_SAUCE))
+
 
     @Rule(Recipe(price=MATCH.price, category='desery'),
           TEST(lambda _: datetime.datetime.today().weekday() == 6))
@@ -189,6 +205,7 @@ class ProductDiscount(KnowledgeEngine):
         """
         self.declare(Product(name='Niedziela zniżka na desery 10%', price=-(price * 0.1),
                              category=ProductDiscount.DISCOUNT_DESSERT_10_PERCENT))
+
 
     @Rule(NOT(Recipe(category=DISCOUNT_BEER_ONE_FREE)),
           Recipe(name=MATCH.name, category='alkohol', count=MATCH.count),
@@ -204,6 +221,7 @@ class ProductDiscount(KnowledgeEngine):
             self.declare(Product(name='Piątek w godz. 16-20 darmowe piwo ' + name, price=0.0,
                                  category=ProductDiscount.DISCOUNT_BEER_ONE_FREE))
 
+
     @Rule(Recipe(category='burgery', price=MATCH.price1),
           Recipe(category='napoje', price=MATCH.price2),
           TEST(lambda _: datetime.datetime.today().weekday() == 6))
@@ -216,6 +234,7 @@ class ProductDiscount(KnowledgeEngine):
         """
         self.declare(Product(name='Niedziela zniżka na burger i napój w zestawie', price=round(-((price1+price2)*0.15),2),
                                  category=ProductDiscount.DISCOUNT_BURGER_AND_DRING_15_PERCENT))
+
 
     @Rule(AS.sauce1 << Recipe(category=DISCOUNT_FREE_SAUCE, count=MATCH.count1, idx=MATCH.index1),
           AS.sauce2 << Recipe(category=DISCOUNT_FREE_SAUCE, count=MATCH.count2, idx=MATCH.index2),
@@ -231,6 +250,7 @@ class ProductDiscount(KnowledgeEngine):
         """
         self.modify(sauce1, count=count1 + count2)
         self.retract(sauce2)
+
 
     @Rule(AS.package1 << Recipe(category=PACKAGE_SMALL_PIZZA, count=MATCH.count1, idx=MATCH.index1, price=MATCH.price1),
           AS.package2 << Recipe(category=PACKAGE_SMALL_PIZZA, count=MATCH.count2, idx=MATCH.index2, price=MATCH.price2),
@@ -248,6 +268,7 @@ class ProductDiscount(KnowledgeEngine):
         """
         self.modify(package1, count=count1 + count2, price=price1 + price2)
         self.retract(package2)
+
 
     @Rule(AS.package1 << Recipe(category=PACKAGE_BIG_PIZZA, count=MATCH.count1, idx=MATCH.index1, price=MATCH.price1),
           AS.package2 << Recipe(category=PACKAGE_BIG_PIZZA, count=MATCH.count2, idx=MATCH.index2, price=MATCH.price2),
